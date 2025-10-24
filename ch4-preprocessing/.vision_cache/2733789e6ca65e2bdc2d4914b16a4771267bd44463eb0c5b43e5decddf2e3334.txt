@@ -1,0 +1,58 @@
+Here’s the extracted text and table in markdown format:
+
+```markdown
+# Compliance-Related Use Cases
+
+## Use Cases
+- **Automating compliance processes**  
+  AI can automate compliance processes such as documentation, audits, and risk assessment to reduce human errors and help employees use time more strategically.
+
+- **Predictive analytics for proactive issue identification**  
+  You can use predictive analytics to identify issues proactively before they happen and deal with individuals and departments accordingly.
+
+- **Chatbots and virtual assistants for compliance**  
+  You can also use chatbots and virtual assistants to answer compliance questions from employees.
+
+- **Changing compliance requirements**  
+  AI can help keep pace with changing compliance requirements by staying up-to-date and proposing improvement areas in compliance programs.
+
+## Table
+
+| item | categories | comments     |
+|------|------------|--------------|
+| 1    | A          | b.1         | Test result 1 |
+| 2    | a.2       | b.2         | Test result 2 |
+| 3    | a.3       | b.3         | Test result 4 |
+
+## Data Sources
+- **Source**  
+  - ERP
+  - CRM
+  - Apps
+  - Logs
+  - Third Party APIs
+  - File Storage
+
+- **Storage**  
+  - Data Lake
+  - Real-Time
+  - Analytics Database
+
+- **Query and Processing**  
+  - Spark Platform
+  - SQL Query
+  - Logic
+  - ML Platform
+
+- **Transformation**  
+  - Data Modeling
+  - Workflow Manager
+
+- **Analysis and Output**  
+  - Dashboards
+  - Embedded Analytics
+  - Reports
+  - Custom Applications
+```
+
+Feel free to modify or expand upon this as needed!

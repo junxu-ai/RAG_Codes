@@ -1,0 +1,38 @@
+Here’s the extracted text and tables in markdown format:
+
+```markdown
+This is a test file
+
+| item | categories | A   | B   | comments      |
+|------|------------|-----|-----|---------------|
+| 1    |            | a.1 | b.1 | Test result 1 |
+| 2    |            | a.2 | b.2 | Test result 2 |
+| 3    |            | a.3 | b.3 | Test result 4 |
+
+## COMPLIANCE-RELATED USE CASES
+
+- **Automating compliance processes**  
+  AI can automate compliance processes such as documentation, audits, and risk assessment to reduce human errors and help employees use time more strategically.
+
+- **Predictive analytics for proactive issue identification**  
+  You can use predictive analytics to identify issues proactively before they happen and deal with individuals and departments accordingly.
+
+- **Chatbots and virtual assistants for compliance**  
+  You can also use chatbots and virtual assistants to answer compliance questions from employees.
+
+- **Changing compliance requirements**  
+  AI can help keep pace with changing compliance requirements by staying up-to-date and proposing improvement areas in compliance programs.
+
+### Data Flow Overview
+
+| Sources         | Ingestion and Transport | Storage                     | Query and Processing       | Transformation         | Analysis and Output               |
+|------------------|------------------------|-----------------------------|----------------------------|-------------------------|------------------------------------|
+| - ERP            | - Data Replication     | - Data Lake                 | - Spark Platform           | - Data Modeling         | - Dashboards                       |
+| - CRM            | - Workflow Manager     | - Real-Time Analytics Database | - SQL Query Engine         | - Workflow Manager      | - Embedded Analytics               |
+| - Apps           | - Event Streaming      |                             | - ML Platform              |                         | - Data Workspace                   |
+| - Logs           |                        |                             |                            |                         | - Custom Application               |
+| - Third-Party APIs|                       |                             |                            |                         |                                    |
+| - File Storage   |                        |                             |                            |                         |                                    |
+```
+
+Feel free to modify or add any additional information as needed!
