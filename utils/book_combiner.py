@@ -627,7 +627,7 @@ if __name__ == '__main__':
     # IMPORTANT: Create these dummy files or replace with your actual file paths.
     chapter_files_docx = [
         r'D:\Writing\RAG\Ch0 preface.docx', 
-        r'D:\Writing\RAG\Ch1 Introduction1.docx', 
+        r'D:\Writing\RAG\Ch1 Introduction.docx', 
         r'D:\Writing\RAG\Ch2 LLMOps.docx', 
         r'D:\Writing\RAG\Ch3 RAG.docx',
         r'D:\Writing\RAG\Ch4 data process.docx', 
