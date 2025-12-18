@@ -15,7 +15,6 @@ documents = [
     Document(text="Pseudo-documents can improve query understanding in dense retrieval.")
 ]
 
-
 # Step 3: Create a Dense Retrieval Index
 texts = [doc.text for doc in documents]
 embeddings = OpenAIEmbeddings()
@@ -34,6 +33,17 @@ def generate_pseudo_documents(query):
     pseudo_doc = llm.predict(prompt)
     return [pseudo_doc.strip()]
 
+# # we can add multiple pseudo-docs:
+# def generate_pseudo_documents(query, num_pseudo_docs=3):
+#     """
+#     Generate multiple pseudo-documents for better coverage
+#     """
+#     pseudo_docs = []
+#     for i in range(num_pseudo_docs):
+#         prompt = f"Generate a pseudo-document that provides context or potential answers to the query:\n\nQuery: {query}\n\nPseudo-document:"
+#         pseudo_doc = llm.predict(prompt)
+#         pseudo_docs.append(pseudo_doc.strip())
+#     return pseudo_docs
 # Step 5: Expand the Query (Query + Pseudo-Documents)
 def expand_query(query, pseudo_docs):
     """
@@ -84,3 +94,11 @@ print("\nRetrieved Documents:")
 for doc in retrieved_docs:
     print(doc.page_content)
 
+## a sample output:
+# Generated Pseudo-Documents: ["The LangChain framework is a technological framework designed to revolutionize the language industry. This framework is based on blockchain technology and artificial intelligence (AI), … <skip some sentences>… leading to reduced costs and increased efficiency."]
+# Expanded Query: What is LangChain framework? [SEP] … <skip some sentences>…
+# Overall, the LangChain framework aims to democratize the language industry by providing a decentralized platform where anyone can offer or access language services. It seeks to eliminate the need for intermediaries in the language industry, leading to reduced costs and increased efficiency.increased efficiency.
+
+# Retrieved Documents:
+# LangChain Development: Build your applications using LangChain's open-source components and third-party integrations. Use LangGraph to build stateful agents with first-class streaming and human-in-the-loop support.
+# LangChain is a framework for building applications with LLMs.

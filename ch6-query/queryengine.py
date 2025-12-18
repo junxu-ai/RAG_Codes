@@ -39,3 +39,12 @@ query_engine = SubQuestionQueryEngine.from_defaults(
 
 response = query_engine.query("How to build a machine learning model efficiently? ")
 print(response)
+
+
+## a sample output:
+# [ml] Q: What are the best practices for data preprocessing in machine learning?
+# [ml] Q: How to select the most suitable machine learning algorithm for a specific task?
+# [ml] Q: What techniques can be used for feature selection in machine learning models?
+# [ml] A: Feature engineering plays a critical role in extracting relevant characteristics from raw data in machine learning models.
+# [ml] A: High-quality data collection, cleaning, handling missing values, and normalizing features are essential steps in data preprocessing for machine learning. Feature engineering is crucial for extracting relevant characteristics from raw data, improving model performance, and reducing the risk of bias and overfitting.
+# [ml] A: Choosing the right algorithm for a specific task in machine learning involves considering the nature of the task itself, whether it is classification, regression, or clustering. Depending on the task requirements, practitioners typically select from a range of algorithms such as linear regression, decision trees, support vector machines, neural networks, and ensemble methods. The selection process is crucial to ensure that the chosen algorithm is well-suited to the data and can effectively address the objectives of the task at hand.

@@ -32,3 +32,6 @@ response = query_engine.query(query_str)
 
 # Print the final response.
 print(response)
+
+## a sample output:
+# To build a machine learning model efficiently, practitioners should focus on key aspects of the methodology. This includes gathering high-quality data from diverse sources, cleaning and preprocessing the data effectively, selecting the right algorithm based on the task at hand, tuning hyperparameters for optimal performance, evaluating the model using appropriate metrics, deploying the model into production environments for real-time predictions, monitoring the model's performance continuously, and ensuring interpretability and explainability through techniques like SHAP and LIME. Staying updated with emerging trends such as transfer learning, federated learning, and AutoML can also enhance model performance and scalability across different industries.
