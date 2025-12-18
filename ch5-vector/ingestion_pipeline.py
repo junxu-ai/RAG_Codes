@@ -1,6 +1,4 @@
-# to be verified
-
-# A simple demo. more information can be found at https://docs.llamaindex.ai/en/stable/examples/vector_stores/QdrantIndexDemo/
+# A simple demo. More information can be found at https://docs.llamaindex.ai/en/stable/examples/vector_stores/QdrantIndexDemo/
 
 # Import a sample Document helper
 from llama_index.core import Document
@@ -30,7 +28,7 @@ client = qdrant_client.QdrantClient(location=":memory:")
 vector_store = QdrantVectorStore(client=client, collection_name="test_store")
 
 # Create an ingestion pipeline with a sequence of transformations:
-# 1. SentenceSplitter: breaks text into chunks of 25 tokens (no overlap)
+# 1. SentenceSplitter: breaks text into chunks of 25 tokens (with 10 token overlap)
 # 2. TitleExtractor: extracts a title from the first few nodes as metadata
 # 3. OpenAIEmbedding: calculates vector embeddings for each node
 pipeline = IngestionPipeline(
@@ -43,11 +41,20 @@ pipeline = IngestionPipeline(
 )
 
 # Run the pipeline to process a sample document; Document.example() provides a demo document.
-pipeline.run(documents=[Document.example()])
+nodes = pipeline.run(documents=[Document.example()])
+print(f"Processed {len(nodes)} nodes")
 
 # Now create a VectorStoreIndex from the vector store.
 # This index abstracts query operations over the stored vector embeddings.
 from llama_index.core import VectorStoreIndex
 index = VectorStoreIndex.from_vector_store(vector_store)
 
-# The 'index' object can now be used to query your vector store.
+# Example query usage
+query_engine = index.as_query_engine()
+response = query_engine.query("What is this document about?")
+print(f"Query response: {response}")
+
+# You can also inspect the nodes that were created
+print("\nCreated nodes:")
+for i, node in enumerate(nodes[:3]):  # Show first 3 nodes
+    print(f"Node {i+1}: {node.text[:100]}...")

@@ -1,5 +1,6 @@
 import faiss
 import numpy as np
+import time
 
 # Generate some random data for demonstration
 d = 128  # Dimensionality of vectors
@@ -42,15 +43,37 @@ def create_index(index_type, d, data, nlist=100, nprobe=10, m=8):
     index.add(data)  # Add data to the index
     return index
 
-# Select and create an index
-index_type = 'HNSW'  # Choose from 'Flat', 'IVF', 'PQ', 'HNSW'
-index = create_index(index_type, d, data)
+# Test all index types and perform comparison
+index_types = ['Flat', 'IVF', 'PQ', 'HNSW']
 
-# Perform a search with query vectors
-k = 5  # Number of nearest neighbors
-distances, indices = index.search(queries, k)
+print(f"{'='*50}")
+print("Performance Comparison")
+print(f"{'='*50}")
 
-# Output the results
-print(f"Index type: {index_type}")
-print("Distances:\n", distances)
-print("Indices:\n", indices)
+for index_type in index_types:
+    try:
+        print(f"\n{'-'*30}")
+        print(f"Testing {index_type} Index")
+        print(f"{'-'*30}")
+        
+        # Measure index creation time
+        start_time = time.time()
+        index = create_index(index_type, d, data)
+        creation_time = time.time() - start_time
+        
+        # Perform a search with query vectors
+        k = 5  # Number of nearest neighbors
+        start_time = time.time()
+        distances, indices = index.search(queries, k)
+        search_time = time.time() - start_time
+        
+        # Output the results
+        print(f"Index type: {index_type}")
+        print(f"Number of vectors indexed: {index.ntotal}")
+        print(f"Creation time: {creation_time:.4f}s")
+        print(f"Search time: {search_time:.6f}s")
+        print("Distances:\n", distances)
+        print("Indices:\n", indices)
+        
+    except Exception as e:
+        print(f"Error with {index_type} index: {e}")

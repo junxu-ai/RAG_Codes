@@ -38,3 +38,4 @@ query_engine = SubQuestionQueryEngine.from_defaults(
 )
 
 response = query_engine.query("How to build a machine learning model efficiently? ")
+print(response)
