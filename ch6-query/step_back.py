@@ -1,3 +1,5 @@
+# Implementing a step-back retrieval strategy using LlamaIndex and OpenAI LLM.
+# 
 from llama_index.core.indices import  SimpleKeywordTableIndex
 from llama_index.core import Document, VectorStoreIndex
 from llama_index.llms.openai import OpenAI
@@ -83,3 +85,9 @@ final_answer = llm.predict(
     question="Can LangChain be used for building document-based retrieval pipelines?"
 )
 print(f"\nFinal Answer:\n{final_answer}")
+
+# a sample output:
+# Step-back question: Is LangChain suitable for creating pipelines that involve retrieving documents?
+
+# Final Answer:
+# Yes, LangChain can be used for building document-based retrieval pipelines, as it is a framework for building applications with LLMs, including prompt management and chains. Additionally, LlamaIndex provides tools for data retrieval and processing in LLM workflows, which can complement LangChain's capabilities in building AI applications.
