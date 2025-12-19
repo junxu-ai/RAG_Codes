@@ -137,4 +137,3 @@ def echo(message, history):
 
 demo = gr.ChatInterface(fn=echo, examples=["what are the metrics or KPIs for the year 1 budget and actual for FY23/24 plan", "what are the KPIs for LTI plan", "what is the actual value of Gross Profit (GP) Margin for Fy22/23'"], title="LTI Chatbot")
 demo.launch()
-```
