@@ -35,7 +35,6 @@ query_engine = MixSelfConsistencyQueryEngine(
     verbose=True,  
 )  
 
-
 async def main():
     response = await query_engine.aquery("what is the average age of all persons?")
     print(response)
