@@ -1,150 +1,134 @@
-# to be verified
-
 # Step 1: Install Necessary Libraries
-
-#  pip install ragas ragchecker trulens datasets openai
+#
+# pip install ragas ragchecker trulens datasets langchain-openai openai scikit-learn
 
 """
 Step 2: Import Required Libraries and Configure the Environment
 
-Import the necessary libraries and set up your environment variables, such as the OpenAI API key."""
+Import the necessary libraries and set up your environment variables, such as the OpenAI API key.
+"""
 import os
+from typing import Dict, List
+
 import numpy as np
 from datasets import Dataset, load_dataset
-from ragas import evaluate
-from ragas.metrics import Faithfulness, AnswerRelevancy, ContextPrecision, ContextRecall, NoiseSensitivity
-from ragas.llms import LangchainLLMWrapper
+from langchain.schema import HumanMessage
 from langchain_openai import ChatOpenAI
+from ragas import evaluate
+from ragas.llms import LangchainLLMWrapper
+from ragas.metrics import (
+    AnswerRelevancy,
+    ContextPrecision,
+    ContextRecall,
+    Faithfulness,
+    NoiseSensitivity,
+)
 from ragchecker import RAGChecker
-from trulens_eval import Tru
-
-# Load environment variables
-os.environ["OPENAI_API_KEY"] = "your_openai_api_key"
-
-# Initialize the Language Model
-llm = LangchainLLMWrapper(ChatOpenAI(model_name="gpt-3.5-turbo"))
-
-"""
-Step 3: Create Benchmark Dataset for Evaluation
-
-Load your benchmark dataset containing documents, questions, and human-assessed responses. For demonstration, we'll use a sample dataset from the Hugging Face Hub."""
-
-# Load a sample dataset
-dataset = load_dataset("explodinggradients/amnesty_qa", "english_v3", split="eval")
-
-# Convert to RAGAS EvaluationDataset format
-from ragas import EvaluationDataset
-eval_dataset = EvaluationDataset.from_hf_dataset(dataset)
-
-"""
-Step 4: Split Benchmark Dataset into Evaluation and Test Sets
-
-Divide the dataset into evaluation and test sets."""
-
 from sklearn.model_selection import train_test_split
 
-# Split the dataset (80% evaluation, 20% test)
-eval_data, test_data = train_test_split(eval_dataset.to_pandas(), test_size=0.2, random_state=42)
 
-# Convert back to EvaluationDataset
-eval_dataset = EvaluationDataset.from_pandas(eval_data)
-test_dataset = EvaluationDataset.from_pandas(test_data)
-
-
-"""Step 5: Generate Responses Using the RAG Pipeline
-
-Implement your RAG pipeline to generate responses for the evaluation dataset. This involves retrieving relevant documents and generating answers using the LLM."""
-
-def rag_pipeline(question, retriever, llm):
-    # Retrieve relevant documents
-    contexts = retriever.retrieve(question)
-    # Generate response using the LLM
-    response = llm.generate(question, contexts)
-    return response, contexts
-
-# Example usage (assuming you have a retriever implemented)
-# responses = [rag_pipeline(q, retriever, llm) for q in eval_dataset.questions]
-
-"""
-Step 6: Parse Responses into Components
-
-Parse the generated responses into distinct components: answer, explanation/summary, and references (document chunks)."""
-def parse_response(response):
-    # Implement parsing logic based on your response format
-    answer = response.get("answer")
-    explanation = response.get("explanation")
-    references = response.get("references")
-    return answer, explanation, references
-
-# parsed_responses = [parse_response(r) for r in responses]
+def _ensure_api_key() -> None:
+    """Ensure the OpenAI key is present; keep setup out of code for safety."""
+    if "OPENAI_API_KEY" not in os.environ:
+        raise ValueError("Please set the OPENAI_API_KEY environment variable.")
 
 
-"""
-Step 7: Evaluate Accuracy of the Answer
+def _build_records(raw_ds, llm_raw: ChatOpenAI, max_samples: int = 30) -> List[Dict]:
+    """
+    Step 3: Create Benchmark Dataset for Evaluation
 
-Evaluate the accuracy of the answers using confirmative precision and recall metrics."""
+    Convert a HF dataset into the columns expected by ragas metrics.
+    """
+    records: List[Dict] = []
+    for i, row in enumerate(raw_ds):
+        if i >= max_samples:
+            break
 
-# Define evaluation metrics
-metrics = [Faithfulness(llm=llm), AnswerRelevancy(llm=llm)]
+        question = row.get("question") or ""
+        # Amnesty QA has "answer" and "context"; fall back to empty defaults if missing.
+        reference = row.get("answer") or row.get("answers") or ""
+        contexts = row.get("context") or row.get("contexts") or []
+        if isinstance(contexts, str):
+            contexts = [contexts]
+        elif not isinstance(contexts, list):
+            contexts = [str(contexts)]
 
-# Evaluate the RAG pipeline
-results = evaluate(eval_dataset, metrics)
+        prompt = (
+            "Use the provided contexts to answer the question concisely.\n\n"
+            f"Question: {question}\n\n"
+            "Contexts:\n" + "\n\n".join(f"- {c}" for c in contexts) + "\n\nAnswer:"
+        )
+        response = llm_raw.invoke([HumanMessage(content=prompt)]).content.strip()
 
-# Calculate mean scores
-for metric in metrics:
-    scores = results[metric.name]
-    mean_score = np.mean(scores)
-    print(f"{metric.name} Average Score: {mean_score:.4f}")
-
-
-
-"""
-Step 8: Evaluate Semantic/Context Precision, Recall, and Accuracy
-
-Assess the semantic and contextual relevance using additional metrics.
-"""
-
-# Add context-related metrics
-context_metrics = [ContextPrecision(llm=llm), ContextRecall(llm=llm), NoiseSensitivity(llm=llm)]
-
-# Evaluate the RAG pipeline
-context_results = evaluate(eval_dataset, context_metrics)
-
-# Calculate mean scores
-for metric in context_metrics:
-    scores = context_results[metric.name]
-    mean_score = np.mean(scores)
-    print(f"{metric.name} Average Score: {mean_score:.4f}")
-
-"""
-Step 9: Analyze Failed Cases Using Diagnostic Metrics
-
-Utilize RAGChecker to diagnose and analyze failed cases in the RAG pipeline."""
-
-# Initialize RAGChecker
-rag_checker = RAGChecker(llm=llm)
-
-# Analyze failed cases
-diagnostics = rag_checker.analyze_failures(eval_dataset, results)
-
-# Review diagnostics to identify issues
-for issue in diagnostics:
-    print(issue)
+        records.append(
+            {
+                "user_input": question,
+                "response": response,
+                "retrieved_contexts": contexts,
+                # Helpful extras for analysis
+                "reference": reference,
+                "reference_contexts": contexts,
+            }
+        )
+    return records
 
 
-"""Step 10: Refine RAG Pipeline Based on Diagnostic Feedback
+def _split_dataset(records: List[Dict]) -> (Dataset, Dataset):
+    """
+    Step 4: Split Benchmark Dataset into Evaluation and Test Sets
+    """
+    eval_records, test_records = train_test_split(records, test_size=0.2, random_state=42)
+    return Dataset.from_list(eval_records), Dataset.from_list(test_records)
 
-Based on the diagnostic feedback, make necessary adjustments to your RAG pipeline to address identified issues. This may involve improving document retrieval strategies, fine-tuning the LLM, or enhancing response parsing methods.​
 
-Step 11: Report Results Based on Test Sets
+def main() -> None:
+    _ensure_api_key()
 
-After refining the pipeline, evaluate it against the test dataset to assess improvements."""
+    # Initialize the Language Model
+    llm_raw = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+    llm = LangchainLLMWrapper(llm_raw)
 
-# Evaluate the refined RAG pipeline
-test_results = evaluate(test_dataset, metrics + context_metrics)
+    """
+    Step 3 (continued): Load benchmark data and build evaluation dataset
+    """
+    raw_ds = load_dataset("explodinggradients/amnesty_qa", "english_v3", split="eval")
+    records = _build_records(raw_ds, llm_raw, max_samples=30)
+    eval_dataset, test_dataset = _split_dataset(records)
 
-# Calculate and report mean scores
-for metric in metrics + context_metrics:
-    scores = test_results[metric.name]
-    mean_score = np.mean(scores)
-    print(f"{metric.name} Test Average Score: {mean_score:.4f}")
+    """
+    Step 5–7: Generate responses (above), parse components (implicit), and evaluate accuracy
+    """
+    metrics = [Faithfulness(llm=llm), AnswerRelevancy(llm=llm)]
+    results = evaluate(eval_dataset, metrics)
+    for metric in metrics:
+        scores = results[metric.name]
+        print(f"{metric.name} Average Score: {np.mean(scores):.4f}")
+
+    """
+    Step 8: Evaluate Semantic/Context Precision, Recall, and Accuracy
+    """
+    context_metrics = [ContextPrecision(llm=llm), ContextRecall(llm=llm), NoiseSensitivity(llm=llm)]
+    context_results = evaluate(eval_dataset, context_metrics)
+    for metric in context_metrics:
+        scores = context_results[metric.name]
+        print(f"{metric.name} Average Score: {np.mean(scores):.4f}")
+
+    """
+    Step 9: Analyze Failed Cases Using Diagnostic Metrics
+    """
+    rag_checker = RAGChecker(llm=llm)
+    diagnostics = rag_checker.analyze_failures(eval_dataset, results)
+    for issue in diagnostics:
+        print(issue)
+
+    """
+    Step 10–11: Refine and report on the held-out test set
+    """
+    test_results = evaluate(test_dataset, metrics + context_metrics)
+    for metric in metrics + context_metrics:
+        scores = test_results[metric.name]
+        print(f"{metric.name} Test Average Score: {np.mean(scores):.4f}")
+
+
+if __name__ == "__main__":
+    main()
