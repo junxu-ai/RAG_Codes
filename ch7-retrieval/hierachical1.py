@@ -1,4 +1,4 @@
-## to be revised
+## Hierarchical Retrieval Implementation with low-version of LlamaIndex
 
 from llama_index.core import (
     VectorStoreIndex,
@@ -9,6 +9,7 @@ from llama_index.core import (
     RecursiveRetriever,
     RetrieverQueryEngine,
     StorageContext,
+    Document
 )
 from llama_index.llms import OpenAI
 from llama_index.text_splitter import SentenceSplitter
