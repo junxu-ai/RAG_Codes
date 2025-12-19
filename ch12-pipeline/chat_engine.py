@@ -61,15 +61,17 @@ def run_llama_index_chat():
         print(f"LlamaIndex error: {e}")
 
 def run_langchain_chat():
-    """Run LangChain chat engine"""
+    """Run LangChain chat engine with updated API"""
     print("LANGCHAIN CHAT ENGINE")
     print("=" * 30)
     
     try:
         # Import necessary modules from LangChain
         from langchain_openai import ChatOpenAI
-        from langchain.chains import ConversationChain
-        from langchain.memory import ConversationBufferMemory
+        from langchain_core.messages import HumanMessage, AIMessage
+        from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+        from langchain_core.runnables.history import RunnableWithMessageHistory
+        from langchain_community.chat_message_histories import ChatMessageHistory
 
         # Initialize an LLM (ensure your OPENAI_API_KEY is set in the environment)
         try:
@@ -89,15 +91,37 @@ def run_langchain_chat():
             ])
             print("Using mock LLM for demonstration")
 
-        # Create a conversation chain that retains context
-        memory = ConversationBufferMemory()
-        chat = ConversationChain(llm=llm, memory=memory)
+        # Create prompt template
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a helpful AI assistant."),
+            MessagesPlaceholder(variable_name="history"),
+            ("human", "{input}"),
+        ])
+
+        # Create chain using the new API
+        chain = prompt | llm
+
+        # Create message history
+        chat_history = ChatMessageHistory()
+
+        # Wrap chain with message history
+        chain_with_history = RunnableWithMessageHistory(
+            chain,
+            lambda session_id: chat_history,
+            input_messages_key="input",
+            history_messages_key="history"
+        )
+
         print("Conversation chain created with memory")
 
         # Start a conversation by sending a message
-        response = chat.predict("Tell me about machine learning.")
+        config = {"configurable": {"session_id": "abc123"}}
+        response = chain_with_history.invoke(
+            {"input": "Tell me about machine learning."},
+            config=config
+        )
         print(f"Question: Tell me about machine learning.")
-        print(f"Response: {response}")
+        print(f"Response: {response.content}")
         
         # Interactive mode
         print("\nEntering interactive mode (type 'quit' to exit):")
@@ -105,14 +129,19 @@ def run_langchain_chat():
             user_input = input("You: ")
             if user_input.lower() in ['quit', 'exit', 'q']:
                 break
-            response = chat.predict(user_input)
-            print(f"AI: {response}")
+            response = chain_with_history.invoke(
+                {"input": user_input},
+                config=config
+            )
+            print(f"AI: {response.content}")
             
     except ImportError as e:
         print(f"LangChain not installed or import error: {e}")
-        print("Install with: pip install langchain langchain-openai")
+        print("Install with: pip install langchain langchain-openai langchain-community")
     except Exception as e:
         print(f"LangChain error: {e}")
+        import traceback
+        traceback.print_exc()
 
 def main(engine_choice):
     """Main function to run the selected chat engine"""
@@ -136,7 +165,7 @@ if __name__ == "__main__":
         "--engine", 
         choices=["llamaindex", "langchain", "both"],
         default="langchain",
-        help="Specify which chat engine to use (default: llamaindex)"
+        help="Specify which chat engine to use (default: langchain)"
     )
     
     # Parse arguments
