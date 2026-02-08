@@ -1,6 +1,6 @@
 
 
-The code repository is for the book ("Retrieval-Augmented Generation in Production: Architecture, Patterns, and Runbooks")[https://www.worldscientific.com/worldscibooks/10.1142/14714#t=aboutBook] by Jun Xu, which will be published by World Scientific Press in earlier 2026. 
+The code repository is for the book ["Retrieval-Augmented Generation in Production: Architecture, Patterns, and Runbooks"](https://www.worldscientific.com/worldscibooks/10.1142/14714#t=aboutBook) by Jun Xu, which will be published by World Scientific Press in earlier 2026. 
 
 ## Book Abstract
 Artificial intelligence is racing ahead, but today’s Large Language Models still stumble on facts, freshness, and domain nuance. Retrieval-Augmented Generation (RAG) addresses this gap by fusing LLMs with live, external knowledge so systems can generate answers that are grounded, current, and context-aware. That capability is increasingly necessary in high-stakes settings, such as healthcare, finance, education, legal, and customer service, where accuracy, traceability, and timeliness matter as much as fluency.
